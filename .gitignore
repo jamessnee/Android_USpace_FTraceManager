@@ -17,3 +17,6 @@ local.properties
 
 # Native binaries
 *.bin
+
+# Maven Target dir
+target/
