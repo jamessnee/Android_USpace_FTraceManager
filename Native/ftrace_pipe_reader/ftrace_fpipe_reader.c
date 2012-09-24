@@ -16,8 +16,8 @@ main(int argc, char *argv[]){
 		//Start reading from the pipe
 		char line[128];
 		while(fgets(line,sizeof line,trace_pipe_fp)!=NULL){
-			fputs(line,stdout);
-			//fprintf(output_fp,"%s",line);
+			//fputs(line,stdout);
+			fprintf(output_fp,"%s",line);
 		}
 		fclose(trace_pipe_fp);
 	}else{
