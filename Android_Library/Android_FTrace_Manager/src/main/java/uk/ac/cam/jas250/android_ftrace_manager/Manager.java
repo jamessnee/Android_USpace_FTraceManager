@@ -11,7 +11,7 @@ public class Manager {
 	
 	private static Manager manager = null;
 	
-	private Boolean tracing;
+	private boolean tracing;
 	private int pipe_reader_pid;
 	
 	public static Manager getManager(){
@@ -26,10 +26,11 @@ public class Manager {
 		pipe_reader_pid = -1;
 	}
 	
-	public Boolean startTracing(String output_filename){
+	public boolean startTracing(String output_filename){
 		if(getTracing()) //Tracing has already started
 			return false;
 		else{
+			System.out.println("Starting tracing");
 			runCommandAsRoot("echo function > /sys/kernel/debug/tracing/current_tracer");
 			runCommandAsRoot("./data/ftrace_reader "+output_filename+" &");
 			pipe_reader_pid = getNativePipePid();
@@ -44,7 +45,7 @@ public class Manager {
 		}
 	}
 	
-	public Boolean stopTracing(){
+	public boolean stopTracing(){
 		if(!getTracing()) //Tracing isn't on
 			return false;
 		else{
@@ -53,6 +54,14 @@ public class Manager {
 				runCommandAsRoot("kill "+pipe_reader_pid);
 			return true;
 		}
+	}
+	
+	/*
+	 * Calls 'gettimeofday' 10 times, this will show up in the FTrace output
+	 * I find this useful for syncing between tracing platforms
+	 */
+	public void sendSynchronisingCall(){
+		runCommandAsRoot("./data/gtod_loop");
 	}
 	
 	private void runCommandAsRoot(String command){
@@ -119,7 +128,7 @@ public class Manager {
 		return (char)-1;
 	}
 
-	public Boolean getTracing() {
+	public boolean getTracing() {
 		char status = getFTraceStatus();
 		if(status == '1')
 			setTracing(true);
@@ -129,7 +138,7 @@ public class Manager {
 	}
 	
 
-	private void setTracing(Boolean tracing_val) {
+	private void setTracing(boolean tracing_val) {
 		tracing = tracing_val;
 	}
 	
