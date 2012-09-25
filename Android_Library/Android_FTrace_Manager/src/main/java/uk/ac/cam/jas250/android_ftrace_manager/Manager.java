@@ -27,22 +27,21 @@ public class Manager {
 	}
 	
 	public boolean startTracing(String output_filename){
-		if(getTracing()) //Tracing has already started
-			return false;
-		else{
-			System.out.println("Starting tracing");
-			runCommandAsRoot("echo function > /sys/kernel/debug/tracing/current_tracer");
-			runCommandAsRoot("./data/ftrace_reader "+output_filename+" &");
-			pipe_reader_pid = getNativePipePid();
-			runCommandAsRoot("echo 1 > /sys/kernel/debug/tracing/tracing_on");
-			
-			char status = getFTraceStatus();
-			if(status=='1'){
-				setTracing(true);
-				return true;
-			}else
-				return false;
+		if(getTracing()){ //Tracing has already started
+			runCommandAsRoot("echo 0 > /sys/kernel/debug/tracing/tracing_on");
 		}
+		System.out.println("Starting tracing");
+		runCommandAsRoot("echo function > /sys/kernel/debug/tracing/current_tracer");
+		runCommandAsRoot("./data/ftrace_reader "+output_filename+" &");
+		pipe_reader_pid = getNativePipePid();
+		runCommandAsRoot("echo 1 > /sys/kernel/debug/tracing/tracing_on");
+		
+		char status = getFTraceStatus();
+		if(status=='1'){
+			setTracing(true);
+			return true;
+		}else
+			return false;
 	}
 	
 	public boolean stopTracing(){
