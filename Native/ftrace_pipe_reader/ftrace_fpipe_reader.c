@@ -2,25 +2,25 @@
 
 
 main(int argc, char *argv[]){
-	
-	//Setup the output file
-	FILE *output_fp = fopen(argv[1],"w+");
-	if(output_fp == NULL){
-		printf("File doesn't exist, attempting to create it...");	
-	}
+        FILE *trace_pipe_fp;
+        FILE *output_fp;
 
-	//Setup the file pointer to the trace pipe
-	FILE *trace_pipe_fp = fopen("/sys/kernel/debug/tracing/trace_pipe","r");
-	if(trace_pipe_fp!=NULL){
+        output_fp = fopen("/data/trace_output.txt","w+");
+        trace_pipe_fp = fopen("/sys/kernel/debug/tracing/trace_pipe","r");
+        if(trace_pipe_fp != NULL && output_fp!=NULL){
+          int print_timestamp = 1;
 
-		//Start reading from the pipe
-		char line[128];
-		while(fgets(line,sizeof line,trace_pipe_fp)!=NULL){
-			//fputs(line,stdout);
-			fprintf(output_fp,"%s",line);
-		}
-		fclose(trace_pipe_fp);
-	}else{
-		printf("Couldn't open the trace pipe for reading...");
-	}
+          char line[128];
+          while(fgets(line,sizeof line,trace_pipe_fp)!=NULL){
+            //fputs(line,stdout);
+            if(print_timestamp!=0){
+              time_t timestamp = time(NULL);
+              print_timestamp = 0;
+            }
+            fprintf(output_fp,"%s",line);
+          }
+          fclose(trace_pipe_fp);
+        }else{
+          printf("Couldn't open file for reading or writing! \n");
+        }
 }
